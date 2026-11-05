@@ -7,6 +7,7 @@ import type { Wine } from '@/types';
 import WineCard from './WineCard';
 import SectionHead from './SectionHead';
 import Icon from './Icon';
+import SelectSheet from './SelectSheet';
 
 export interface TapasOption {
 	id: string;
@@ -68,7 +69,6 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 	const prefill = useSyncExternalStore(noopSubscribe, readPrefill, () => null);
 	const [tapasPick, setTapasPick] = useState<string | null>(null);
 	const [tapas2Id, setTapas2Id] = useState('');
-	const [submitted, setSubmitted] = useState(false);
 	const [fieldError, setFieldError] = useState(false);
 	const [requestError, setRequestError] = useState('');
 	const [aiResult, setAiResult] = useState('');
@@ -76,7 +76,7 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 	const [recommendWine, setRecommendWine] = useState<string[]>([]);
 	const [wineList, setWineList] = useState<Wine[]>([]);
 	const resultRef = useRef<HTMLDivElement>(null);
-	const tapasRef = useRef<HTMLSelectElement>(null);
+	const tapasRef = useRef<HTMLButtonElement | null>(null);
 
 	const tapasId =
 		tapasPick ?? (prefill && initialTapasOptions.some((o) => o.id === prefill) ? prefill : '');
@@ -86,7 +86,6 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 	const sendToAI = async () => {
 		if (isLoading) return;
 
-		setSubmitted(true);
 		setRequestError('');
 
 		if (!tapas) {
@@ -177,21 +176,18 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 		.map((v) => wineList.find((x) => x.engName === v.replace(/"/gi, '')))
 		.filter((x, i, arr): x is Wine => x !== undefined && arr.findIndex((y) => y?.id === x.id) === i);
 
-	const tapasOptions = (exclude: string) => {
-		const groups = [
-			{ label: '타파스', items: initialTapasOptions.filter((o) => o.category !== 'side') },
-			{ label: '사이드', items: initialTapasOptions.filter((o) => o.category === 'side') },
-		].filter((g) => g.items.length > 0);
-		return groups.map((g) => (
-			<optgroup key={g.label} label={g.label}>
-				{g.items.map((v) => (
-					<option key={v.id} value={v.id} disabled={v.id === exclude}>
-						{v.option}
-					</option>
-				))}
-			</optgroup>
-		));
-	};
+	// 음식 목록은 구분 없이 하나로 (메뉴 페이지와 같은 순서: 메인 → 사이드)
+	const orderedTapas = [
+		...initialTapasOptions.filter((o) => o.category !== 'side'),
+		...initialTapasOptions.filter((o) => o.category === 'side'),
+	];
+	const tapasOptions = (otherId: string, note: string) =>
+		orderedTapas.map((o) => ({
+			value: o.id,
+			label: o.option,
+			disabled: o.id === otherId,
+			note: o.id === otherId ? note : undefined,
+		}));
 
 	return (
 		<>
@@ -221,24 +217,21 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 				</fieldset>
 
 				<div className={`field${fieldError ? ' is-error' : ''}`}>
-					<label className='label' htmlFor='tapas1'>
+					<label className='label' id='tapas1-label' htmlFor='tapas1'>
 						곁들일 음식<span className='req'>필수</span>
 					</label>
-					<div className='select'>
-						<select
-							id='tapas1'
-							ref={tapasRef}
-							value={tapasId}
-							aria-required='true'
-							aria-invalid={fieldError}
-							aria-describedby={fieldError ? 'tapas1-err' : undefined}
-							onChange={(e) => handleTapas(e.target.value)}
-							onBlur={() => submitted && setFieldError(!tapasId)}>
-							<option value=''>음식을 선택해 주세요</option>
-							{tapasOptions(tapas2Id)}
-						</select>
-						<Icon name='chevron-down' />
-					</div>
+					<SelectSheet
+						id='tapas1'
+						labelId='tapas1-label'
+						title='곁들일 음식'
+						value={tapasId}
+						placeholder='음식을 선택해 주세요'
+						options={tapasOptions(tapas2Id, '추가 음식으로 선택됨')}
+						onChange={handleTapas}
+						invalid={fieldError}
+						describedBy={fieldError ? 'tapas1-err' : undefined}
+						triggerRef={tapasRef}
+					/>
 					{fieldError && (
 						<p className='field-error' id='tapas1-err'>
 							<Icon name='alert' />
@@ -248,16 +241,19 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 				</div>
 
 				<div className='field'>
-					<label className='label' htmlFor='tapas2'>
+					<label className='label' id='tapas2-label' htmlFor='tapas2'>
 						추가 음식<span className='opt'>선택</span>
 					</label>
-					<div className='select'>
-						<select id='tapas2' value={tapas2Id} onChange={(e) => setTapas2Id(e.target.value)}>
-							<option value=''>음식을 선택해 주세요</option>
-							{tapasOptions(tapasId)}
-						</select>
-						<Icon name='chevron-down' />
-					</div>
+					<SelectSheet
+						id='tapas2'
+						labelId='tapas2-label'
+						title='추가 음식'
+						value={tapas2Id}
+						placeholder='선택 안 함'
+						emptyLabel='선택 안 함'
+						options={tapasOptions(tapasId, '곁들일 음식으로 선택됨')}
+						onChange={setTapas2Id}
+					/>
 				</div>
 
 				<fieldset>

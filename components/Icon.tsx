@@ -4,6 +4,7 @@ const PATHS = {
 	'arrow-left': <path d='M20 12H5M11 6l-6 6 6 6' />,
 	close: <path d='M6 6l12 12M18 6L6 18' />,
 	'chevron-down': <path d='M6 9l6 6 6-6' />,
+	check: <path d='M5 12.5l4.5 4.5L19 7.5' />,
 	alert: (
 		<>
 			<circle cx='12' cy='12' r='9' />

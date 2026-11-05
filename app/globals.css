@@ -922,36 +922,103 @@
 			background: var(--surface);
 		}
 	}
-	.select {
-		position: relative;
-	}
-	.select select {
-		display: block;
+	/* 셀렉트 박스 (누르면 선택 시트가 열린다) */
+	.select-trigger {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
 		width: 100%;
 		min-height: 52px;
-		padding: 0 44px 0 var(--sp-4);
+		padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
 		border: 1px solid var(--field-line);
 		border-radius: 0;
 		background: #fff;
-		font-size: var(--fs-md);
 		color: var(--ink);
-		appearance: none;
-		-webkit-appearance: none;
+		font-size: var(--fs-md);
+		text-align: left;
 		cursor: pointer;
-	}
-	.select .icon {
-		position: absolute;
-		top: 50%;
-		right: 14px;
-		transform: translateY(-50%);
-		pointer-events: none;
 		--icon-size: 20px;
+		transition:
+			border-color var(--dur-fast) var(--ease-out),
+			box-shadow var(--dur-fast) var(--ease-out);
 	}
-	.select option:disabled {
-		color: #9a9a9a;
+	.select-value {
+		display: block;
+		flex: 1 1 0;
+		min-width: 0;
+		line-height: 1.4;
 	}
-	.field.is-error .select select {
-		border: 2px solid var(--error);
+	.select-trigger.is-placeholder .select-value {
+		color: var(--ink-3);
+	}
+	.select-trigger .icon {
+		transition: transform var(--dur) var(--ease-out);
+	}
+	.select-trigger[aria-expanded='true'] {
+		border-color: var(--ink);
+		box-shadow: inset 0 0 0 1px var(--ink);
+	}
+	.select-trigger[aria-expanded='true'] .icon {
+		transform: rotate(180deg);
+	}
+	.field.is-error .select-trigger {
+		border-color: var(--error);
+		box-shadow: inset 0 0 0 1px var(--error);
+	}
+	@media (hover: hover) {
+		.select-trigger:hover {
+			border-color: var(--ink);
+		}
+	}
+
+	/* 선택 시트의 목록 */
+	.sheet-title {
+		font-size: var(--fs-md);
+		font-weight: 700;
+		line-height: 1.5;
+	}
+	.option-row {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
+		min-height: 52px;
+		padding: var(--sp-3) var(--gutter);
+		border-bottom: 1px solid var(--line);
+		cursor: pointer;
+		--icon-size: 20px;
+		transition: background-color var(--dur-fast) var(--ease-out);
+	}
+	.option-row:last-child {
+		border-bottom: 0;
+	}
+	.option-label {
+		display: block;
+		flex: 1 1 0;
+		min-width: 0;
+		line-height: 1.4;
+	}
+	.option-row.is-selected {
+		font-weight: 700;
+	}
+	.option-row[aria-disabled='true'] {
+		color: var(--ink-3);
+		cursor: not-allowed;
+	}
+	.option-note {
+		display: block;
+		flex: none;
+		font-size: var(--fs-xs);
+		color: var(--ink-3);
+		white-space: nowrap;
+	}
+	.option-row:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: -2px;
+	}
+	@media (hover: hover) {
+		.option-row:not([aria-disabled='true']):hover {
+			background: var(--surface);
+		}
 	}
 	.field-error {
 		display: flex;
@@ -1087,6 +1154,7 @@
 		border-bottom: 1px solid var(--line);
 	}
 	.sheet-body {
+		position: relative;
 		min-height: 0;
 		overflow-y: auto;
 		overscroll-behavior: contain;
