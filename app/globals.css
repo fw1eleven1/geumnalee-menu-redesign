@@ -969,11 +969,6 @@
 	.result {
 		margin-top: var(--sp-12);
 	}
-	.result-summary {
-		margin-top: var(--sp-3);
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
-	}
 	.answer {
 		margin-top: var(--sp-5);
 		padding: var(--sp-5);

@@ -177,17 +177,6 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 		.map((v) => wineList.find((x) => x.engName === v.replace(/"/gi, '')))
 		.filter((x, i, arr): x is Wine => x !== undefined && arr.findIndex((y) => y?.id === x.id) === i);
 
-	const wineLabel = WINE_TYPES.find((t) => t.value === myselect.wine)?.label;
-	const tasteLabel = TASTES.find((t) => t.value === myselect.taste && t.value)?.label;
-	const summary = [
-		wineLabel,
-		myselect.body,
-		tasteLabel ? `${tasteLabel} 선호` : '',
-		[tapas?.option, tapas2?.option].filter(Boolean).join(', '),
-	]
-		.filter(Boolean)
-		.join(' · ');
-
 	const tapasOptions = (exclude: string) => {
 		const groups = [
 			{ label: '타파스', items: initialTapasOptions.filter((o) => o.category !== 'side') },
@@ -347,7 +336,6 @@ export default function RecommendForm({ initialTapasOptions }: RecommendFormProp
 				{!isLoading && aiResult && (
 					<section className='result' aria-labelledby='result-h'>
 						<SectionHead id='result-h' title='For You' ko='금나리의 추천' />
-						<p className='result-summary'>{summary}</p>
 						<div className='answer'>{parse(aiResult)}</div>
 
 						{recommended.length > 0 && (
