@@ -143,7 +143,7 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 						tabIndex={-1}
 						ref={panelRef}>
 						<div className='sheet-bar'>
-							<span className='eyebrow'>{selected.category === 'side' ? 'Side · 사이드' : 'Tapas · 타파스'}</span>
+							<span className='eyebrow'>Tapas · 타파스</span>
 							<button type='button' className='icon-btn' aria-label='닫기' onClick={close} ref={closeBtnRef}>
 								<Icon name='close' />
 							</button>
