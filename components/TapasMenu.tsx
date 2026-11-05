@@ -35,10 +35,14 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 	const panelRef = useRef<HTMLDivElement>(null);
 	const closeBtnRef = useRef<HTMLButtonElement>(null);
 	const timerRef = useRef<number | undefined>(undefined);
+	// 키보드(Enter/Space)로 열었을 때만 포커스를 닫기 버튼 ↔ 메뉴로 옮긴다.
+	// 터치로 연 경우 포커스를 옮기면 모바일 Safari 가 테두리(포커스 링)를 남기기 때문.
+	const viaKeyboardRef = useRef(false);
 
-	const open = (item: Tapas, trigger: HTMLElement) => {
+	const open = (item: Tapas, trigger: HTMLElement, viaKeyboard: boolean) => {
 		window.clearTimeout(timerRef.current);
 		triggerRef.current = trigger;
+		viaKeyboardRef.current = viaKeyboard;
 		setSelected(item);
 		setPhase('closed');
 		// 한 프레임 뒤에 열어야 올라오는 전환이 보인다
@@ -50,7 +54,7 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 		const finish = () => {
 			setSelected(null);
 			setPhase('closed');
-			triggerRef.current?.focus({ preventScroll: true });
+			if (viaKeyboardRef.current) triggerRef.current?.focus({ preventScroll: true });
 		};
 		if (prefersReduced()) finish();
 		else timerRef.current = window.setTimeout(finish, EXIT_MS);
@@ -88,7 +92,10 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 	}, [selected, close]);
 
 	useEffect(() => {
-		if (phase === 'open') closeBtnRef.current?.focus({ preventScroll: true });
+		if (phase !== 'open') return;
+		// 키보드: 닫기 버튼에 포커스(링 표시) / 터치: 시트 자체에 포커스(링 없음) — 스크린리더는 둘 다 시트 안으로 들어온다
+		if (viaKeyboardRef.current) closeBtnRef.current?.focus({ preventScroll: true });
+		else panelRef.current?.focus({ preventScroll: true });
 	}, [phase]);
 
 	useEffect(() => () => window.clearTimeout(timerRef.current), []);
@@ -105,7 +112,7 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 									type='button'
 									className='dish'
 									aria-haspopup='dialog'
-									onClick={(e) => open(item, e.currentTarget)}>
+									onClick={(e) => open(item, e.currentTarget, e.detail === 0)}>
 									<span className='dish-text'>
 										<span className='dish-name'>{item.name}</span>
 										{item.desc && <span className='dish-desc'>{item.desc}</span>}
@@ -128,7 +135,13 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 			{selected && (
 				<div className={`sheet${phase === 'open' ? ' is-open' : ''}${phase === 'closing' ? ' is-closing' : ''}`}>
 					<div className='sheet-scrim' onClick={close} />
-					<div className='sheet-panel' role='dialog' aria-modal='true' aria-labelledby='sheet-title' ref={panelRef}>
+					<div
+						className='sheet-panel'
+						role='dialog'
+						aria-modal='true'
+						aria-labelledby='sheet-title'
+						tabIndex={-1}
+						ref={panelRef}>
 						<div className='sheet-bar'>
 							<span className='eyebrow'>{selected.category === 'side' ? 'Side · 사이드' : 'Tapas · 타파스'}</span>
 							<button type='button' className='icon-btn' aria-label='닫기' onClick={close} ref={closeBtnRef}>

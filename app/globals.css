@@ -136,6 +136,11 @@
 		outline: 2px solid var(--ink);
 		outline-offset: 2px;
 	}
+
+	/* 스크립트로만 포커스를 받는 요소(시트 등)는 테두리를 그리지 않는다 */
+	[tabindex='-1']:focus {
+		outline: none;
+	}
 }
 
 /* ── Components ────────────────────────────────────────────── */
