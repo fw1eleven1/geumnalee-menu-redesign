@@ -25,7 +25,7 @@ export default function WineSections({ wines, order, prefix, priceSuffix }: Wine
 			<div className='page'>
 				{groups.map((g) => (
 					<section key={g.id} className='sec' id={g.id} aria-labelledby={`${g.id}-h`}>
-						<SectionHead id={`${g.id}-h`} title={g.title} ko={g.ko} />
+						<SectionHead id={`${g.id}-h`} title={g.title} />
 						<WineList wines={g.items} priceSuffix={priceSuffix} />
 					</section>
 				))}

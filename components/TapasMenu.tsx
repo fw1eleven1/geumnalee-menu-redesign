@@ -104,7 +104,7 @@ export default function TapasMenu({ groups }: { groups: TapasGroup[] }) {
 		<>
 			{groups.map((g) => (
 				<section key={g.id} className='sec' id={g.id} aria-labelledby={`${g.id}-h`}>
-					<SectionHead id={`${g.id}-h`} title={g.title} ko={g.ko} />
+					<SectionHead id={`${g.id}-h`} title={g.title} />
 					<ul className='dish-list' role='list'>
 						{g.items.map((item) => (
 							<li key={item.id}>
