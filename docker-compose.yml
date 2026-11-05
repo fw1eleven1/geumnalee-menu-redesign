@@ -1,0 +1,14 @@
+services:
+  menu-redesign:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://www.admin.geumnalee.co.kr}
+    # 원본(geumnalee-new-menu, 3002)과 겹치지 않도록 이름과 포트를 따로 쓴다
+    image: geumnalee-menu-redesign
+    container_name: geumnalee-menu-redesign
+    ports:
+      - "3003:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
